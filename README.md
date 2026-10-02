@@ -1,8 +1,8 @@
 # Taller de Transformación Vehicular — Patrón Decorator
 
-felipe alejandro ceron
-andres camilo muñoz
-luisa fernanda para
+felipe alejandro ceron -
+andres camilo muñoz -
+luisa fernanda parra.
 
 Simula un taller colombiano que blinda, convierte a gas, adapta para movilidad reducida o convierte en taxi un vehículo existente. Cada transformación es un **decorador** que envuelve al vehículo anterior, modifica su ficha técnica y acumula los trámites del RUNT.
 
