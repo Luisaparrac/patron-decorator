@@ -1,0 +1,3 @@
+// Reemplaza baseVehicle() para conectar Factory Method:
+private static Vehicle baseVehicle() { return new StandardVehicleCreator().createVehicle(); }
+// Main está en package app; no requiere import para StandardVehicleCreator.
