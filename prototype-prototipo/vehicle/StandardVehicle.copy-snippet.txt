@@ -1,0 +1,8 @@
+// Cambia la declaración a:
+// public class StandardVehicle implements Vehicle, VehiclePrototype {
+// Añade dentro de StandardVehicle:
+@Override
+public StandardVehicle copy() {
+    return new StandardVehicle(brand, weightKg, powerHp, fuelConsumption,
+            costPerKm, maxSpeedKmh, accelerationSeconds, price);
+}
