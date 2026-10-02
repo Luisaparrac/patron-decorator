@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taller de Transformación Vehicular</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-mark">
+                <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" fill="white"/></svg>
+            </div>
+            <div>
+                <h1>Taller de Transformación Vehicular</h1>
+                <p>Blindaje, gas, accesibilidad y taxi &mdash; cada cambio es una capa que envuelve a la anterior</p>
+            </div>
+        </div>
+        <div class="chips">
+            <span class="chip">Patrón Decorator</span>
+            <span class="chip chip-plate" id="plate">PRD·246</span>
+        </div>
+    </header>
+
+    <div id="toast" class="toast" hidden>
+        <span class="toast-icon">!</span>
+        <div>
+            <strong>Transformación rechazada</strong>
+            <p id="toastText"></p>
+        </div>
+    </div>
+
+    <main class="layout">
+        <aside class="panel catalog">
+            <h2 class="panel-title">Transformaciones</h2>
+            <p class="hint">Toca una tarjeta para agregarla como nueva capa. El orden importa.</p>
+            <div id="catalog" class="catalog-list"></div>
+            <button id="resetBtn" class="ghost-btn">Restaurar vehículo original</button>
+        </aside>
+
+        <section class="panel onion-panel">
+            <h2 class="panel-title">Capas del vehículo <span class="count" id="layerCount">0 capas</span></h2>
+            <div id="onion" class="onion"></div>
+        </section>
+
+        <section class="panel sheet">
+            <div class="sheet-head">
+                <div>
+                    <h2 class="panel-title">Ficha técnica</h2>
+                    <div class="sheet-brand" id="brand">Toyota Prado 2024</div>
+                </div>
+                <div class="legend">
+                    <span><i class="sw sw-before"></i>Antes</span>
+                    <span><i class="sw sw-after"></i>Después</span>
+                </div>
+            </div>
+            <div id="metrics" class="metrics"></div>
+        </section>
+
+        <section class="panel runt">
+            <h2 class="panel-title">Documentos exigidos por el RUNT <span class="count" id="docCount">0</span></h2>
+            <ol id="docs" class="docs"></ol>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
