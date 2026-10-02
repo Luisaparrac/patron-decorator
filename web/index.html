@@ -1,71 +1,169 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Taller de Transformación Vehicular</title>
+    <meta name="color-scheme" content="dark light">
+    <meta name="description" content="Banco de pruebas del patrón Decorator: blindaje, gas, accesibilidad y taxi aplicados como capas sobre un vehículo de fábrica.">
+    <title>Taller de Transformación Vehicular — Patrón Decorator</title>
+
+    <script>
+        // Fija el tema antes del primer pintado para que no se vea un destello.
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem("taller-theme"); } catch (e) {}
+            document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
+        })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="topbar">
-        <div class="brand">
-            <div class="brand-mark">
-                <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" fill="white"/></svg>
-            </div>
-            <div>
-                <h1>Taller de Transformación Vehicular</h1>
-                <p>Blindaje, gas, accesibilidad y taxi &mdash; cada cambio es una capa que envuelve a la anterior</p>
-            </div>
-        </div>
-        <div class="chips">
-            <span class="chip">Patrón Decorator</span>
-            <span class="chip chip-plate" id="plate">PRD·246</span>
-        </div>
-    </header>
 
-    <div id="toast" class="toast" hidden>
-        <span class="toast-icon">!</span>
-        <div>
-            <strong>Transformación rechazada</strong>
-            <p id="toastText"></p>
-        </div>
+<!-- ============ barra superior ============ -->
+<header class="topbar">
+    <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z" fill="currentColor"/></svg>
+        </span>
+        <span class="brand-text">
+            <strong>Taller de Transformación Vehicular</strong>
+            <small>Banco de pruebas &middot; patrón Decorator</small>
+        </span>
     </div>
 
-    <main class="layout">
-        <aside class="panel catalog">
+    <div class="topbar-right">
+        <div class="status" id="status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="statusText">Configuración válida</span>
+        </div>
+        <span class="plate" id="plate" title="Placa del vehículo">
+            <span class="plate-co">CO</span><span class="plate-num">PRD&middot;246</span>
+        </span>
+        <button id="themeBtn" class="icon-btn" type="button" aria-label="Cambiar de tema">
+            <svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.1M12 19.3v2.1M2.6 12h2.1M19.3 12h2.1M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M18.6 5.4l-1.5 1.5M6.9 17.1l-1.5 1.5"/>
+            </svg>
+            <svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+                <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<!-- ============ aviso ============ -->
+<div id="toast" class="toast" role="alert" hidden>
+    <span class="toast-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 7.5v6M12 17h.01"/></svg>
+    </span>
+    <div class="toast-body">
+        <strong id="toastTitle">Transformación rechazada</strong>
+        <p id="toastText"></p>
+    </div>
+    <button id="toastClose" class="toast-close" type="button" aria-label="Cerrar aviso">&times;</button>
+</div>
+
+<main class="layout" id="layout">
+
+    <!-- ============ catálogo ============ -->
+    <aside class="panel catalog reveal" style="--d:0ms">
+        <div class="panel-head">
             <h2 class="panel-title">Transformaciones</h2>
-            <p class="hint">Toca una tarjeta para agregarla como nueva capa. El orden importa.</p>
-            <div id="catalog" class="catalog-list"></div>
-            <button id="resetBtn" class="ghost-btn">Restaurar vehículo original</button>
-        </aside>
+            <span class="tag" id="layerTag">0 / 6</span>
+        </div>
+        <p class="hint">Cada tarjeta añade un decorador sobre el vehículo actual. El orden de aplicación cambia el resultado.</p>
+        <div id="catalog" class="catalog-list"></div>
+        <button id="resetBtn" class="ghost-btn" type="button">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4.5V10h5.5"/></svg>
+            Restaurar vehículo de fábrica
+        </button>
+    </aside>
 
-        <section class="panel onion-panel">
-            <h2 class="panel-title">Capas del vehículo <span class="count" id="layerCount">0 capas</span></h2>
-            <div id="onion" class="onion"></div>
-        </section>
-
-        <section class="panel sheet">
-            <div class="sheet-head">
-                <div>
-                    <h2 class="panel-title">Ficha técnica</h2>
-                    <div class="sheet-brand" id="brand">Toyota Prado 2024</div>
-                </div>
-                <div class="legend">
-                    <span><i class="sw sw-before"></i>Antes</span>
-                    <span><i class="sw sw-after"></i>Después</span>
-                </div>
+    <!-- ============ escenario / auto ============ -->
+    <section class="panel stage-panel reveal" style="--d:60ms" aria-labelledby="stageTitle">
+        <div class="panel-head">
+            <h2 class="panel-title" id="stageTitle">Vehículo</h2>
+            <div class="panel-tools">
+                <span class="tag mono" id="brandTag">Toyota Prado 2024</span>
+                <button id="motionBtn" class="tool-btn" type="button" aria-pressed="true">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.3"/><rect x="14" y="5" width="4" height="14" rx="1.3"/></svg>
+                    <span>Pausar</span>
+                </button>
             </div>
-            <div id="metrics" class="metrics"></div>
-        </section>
+        </div>
 
-        <section class="panel runt">
-            <h2 class="panel-title">Documentos exigidos por el RUNT <span class="count" id="docCount">0</span></h2>
-            <ol id="docs" class="docs"></ol>
-        </section>
-    </main>
+        <div class="stage rolling" id="stage">
+            <div class="stage-sky" aria-hidden="true"></div>
+            <div class="stage-grid" aria-hidden="true"></div>
+            <div class="stage-car" id="stageCar"></div>
+            <div class="stage-hud" id="stageHud">
+                <div class="hud-cell"><span class="hud-k">Peso</span><b class="hud-v mono" id="hudWeight">—</b></div>
+                <div class="hud-cell"><span class="hud-k">Potencia</span><b class="hud-v mono" id="hudPower">—</b></div>
+                <div class="hud-cell"><span class="hud-k">Vel. máx.</span><b class="hud-v mono" id="hudSpeed">—</b></div>
+                <div class="hud-cell"><span class="hud-k">Costo / km</span><b class="hud-v mono" id="hudCost">—</b></div>
+            </div>
+            <div class="stage-chips" id="stageChips"></div>
+        </div>
+    </section>
 
-    <script src="script.js"></script>
+    <!-- ============ ficha técnica ============ -->
+    <section class="panel sheet reveal" style="--d:120ms" aria-labelledby="sheetTitle">
+        <div class="panel-head">
+            <h2 class="panel-title" id="sheetTitle">Ficha técnica</h2>
+            <div class="legend">
+                <span><i class="sw sw-before" aria-hidden="true"></i>Fábrica</span>
+                <span><i class="sw sw-after" aria-hidden="true"></i>Actual</span>
+            </div>
+        </div>
+        <div id="metrics" class="metrics"></div>
+    </section>
+
+    <!-- ============ pila de decoradores ============ -->
+    <section class="panel onion-panel reveal" style="--d:180ms" aria-labelledby="onionTitle">
+        <div class="panel-head">
+            <h2 class="panel-title" id="onionTitle">Pila de decoradores</h2>
+            <span class="tag" id="layerCount">0 capas</span>
+        </div>
+        <p class="hint">La capa <kbd>01</kbd> toca el vehículo de fábrica; cada capa siguiente envuelve a la anterior. Usa <kbd>&uarr;</kbd><kbd>&darr;</kbd> para cambiar el orden de aplicación.</p>
+        <div id="onion" class="onion"></div>
+    </section>
+
+    <!-- ============ código equivalente ============ -->
+    <section class="panel code-panel reveal" style="--d:240ms" aria-labelledby="codeTitle">
+        <div class="panel-head">
+            <h2 class="panel-title" id="codeTitle">Composición en Java</h2>
+            <span class="tag mono">TransformationWorkshop</span>
+        </div>
+        <pre class="code" id="code" tabindex="0" aria-label="Código Java equivalente a la pila actual"></pre>
+    </section>
+
+    <!-- ============ trámites RUNT ============ -->
+    <section class="panel runt reveal" style="--d:300ms" aria-labelledby="runtTitle">
+        <div class="panel-head">
+            <h2 class="panel-title" id="runtTitle">Trámites exigidos por el RUNT</h2>
+            <span class="tag" id="docCount">0</span>
+        </div>
+        <ol id="docs" class="docs"></ol>
+    </section>
+
+</main>
+
+<!-- ============ barra de estado ============ -->
+<footer class="statusbar">
+    <span class="sb-item"><span class="sb-k">Capas</span><b class="mono" id="sbLayers">0</b></span>
+    <span class="sb-sep" aria-hidden="true"></span>
+    <span class="sb-item"><span class="sb-k">Trámites</span><b class="mono" id="sbDocs">0</b></span>
+    <span class="sb-sep" aria-hidden="true"></span>
+    <span class="sb-item"><span class="sb-k">Inversión</span><b class="mono" id="sbPrice">—</b></span>
+    <span class="sb-grow"></span>
+    <span class="sb-item sb-dim">localhost:8080 &middot; <span class="mono">POST /api/transform</span></span>
+</footer>
+
+<noscript><p class="noscript">Este simulador necesita JavaScript activado.</p></noscript>
+
+<script src="script.js"></script>
 </body>
 </html>
